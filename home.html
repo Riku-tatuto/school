@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ホーム</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左のナビゲーションバー */
+        .sidebar {
+            width: 220px;
+            background-color: #007BFF;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-links button {
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links button:hover,
+        .nav-links button.active {
+            background-color: #0056b3;
+        }
+
+        .logout-btn {
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #ff4444;
+        }
+
+        /* 右側メイン画面 */
+        .main {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* 時間割のテーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .subject {
+            font-weight: bold;
+        }
+
+        .details {
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="nav-links">
+            <button id="homeTab" class="active">ホーム</button>
+            <button id="scheduleTab">予定</button>
+        </div>
+        <button class="logout-btn" onclick="logout()">ログアウト</button>
+    </div>
+
+    <div class="main">
+        <div id="homeContent">
+            <h1 id="welcomeMessage">ようこそ！</h1>
+        </div>
+
+        <div id="scheduleContent" style="display:none;">
+            <h1>今週の予定</h1>
+            <div id="scheduleTable"></div>
+        </div>
+    </div>
+
+    <script>
+        const userData = JSON.parse(localStorage.getItem("userData"));
+
+        if (!userData) {
+            window.location.href = "index.html"; // index.html に戻る
+        }
+
+        document.getElementById("welcomeMessage").innerText = `${userData.course}コースの${userData.grade}の${userData.name}さん、ようこそ！`;
+
+        // サイドバーボタン切り替え
+        document.getElementById("homeTab").addEventListener("click", function () {
+            document.getElementById("homeContent").style.display = "block";
+            document.getElementById("scheduleContent").style.display = "none";
+            this.classList.add("active");
+            document.getElementById("scheduleTab").classList.remove("active");
+        });
+
+        document.getElementById("scheduleTab").addEventListener("click", function () {
+            document.getElementById("homeContent").style.display = "none";
+            document.getElementById("scheduleContent").style.display = "block";
+            this.classList.add("active");
+            document.getElementById("homeTab").classList.remove("active");
+        });
+
+        function logout() {
+            localStorage.removeItem("userData");
+            window.location.href = "index.html";
+        }
+
+        // ダミーの時間割データ（コース別）
+        const schedules = {
+            sg: [
+                ["国語", "数学", "理科", "昼食", "英語", "体育"],
+                ["社会", "音楽", "英語", "昼食", "国語", "技術"],
+                ["理科", "数学", "美術", "昼食", "英語", "保健"],
+                ["国語", "社会", "理科", "昼食", "体育", "英語"],
+                ["英語", "数学", "国語", "昼食", "技術", "社会"],
+                ["国語", "数学", "理科", "英語", "音楽", "下校"]
+            ],
+            ag: [
+                ["英語", "社会", "数学", "昼食", "体育", "国語"],
+                ["国語", "理科", "英語", "昼食", "美術", "数学"],
+                ["音楽", "体育", "国語", "昼食", "社会", "英語"],
+                ["数学", "英語", "理科", "昼食", "技術", "社会"],
+                ["体育", "英語", "音楽", "昼食", "国語", "理科"],
+                ["数学", "英語", "国語", "理科", "技術", "下校"]
+            ],
+            "本科": [
+                ["専門", "専門", "数学", "昼食", "体育", "専門"],
+                ["国語", "専門", "英語", "昼食", "社会", "専門"],
+                ["理科", "専門", "美術", "昼食", "専門", "保健"],
+                ["専門", "専門", "専門", "昼食", "体育", "専門"],
+                ["英語", "数学", "国語", "昼食", "専門", "専門"],
+                ["専門", "専門", "専門", "専門", "専門", "下校"]
+            ]
+        };
+
+        // 教室と教師のサンプル
+        function addSubjectDetail(subject, index) {
+            const details = [
+                "101教室 / 佐藤先生", "102教室 / 鈴木先生", "103教室 / 高橋先生",
+                "104教室 / 田中先生", "105教室 / 山本先生", "106教室 / 伊藤先生"
+            ];
+            return `
+                <div class="subject">${subject}</div>
+                <div class="details">${details[index % details.length]}</div>
+            `;
+        }
+
+        function renderSchedule(course) {
+            const days = ["月曜", "火曜", "水曜", "木曜", "金曜", "土曜"];
+            const periods = ["1限", "2限", "3限", "昼食", "4限", "5限"];
+            const table = document.createElement("table");
+
+            const thead = document.createElement("thead");
+            const headRow = document.createElement("tr");
+            headRow.appendChild(document.createElement("th")); // 左上の空白
+            days.forEach(day => {
+                const th = document.createElement("th");
+                th.innerText = day;
+                headRow.appendChild(th);
+            });
+            thead.appendChild(headRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+            for (let i = 0; i < periods.length; i++) {
+                const row = document.createElement("tr");
+                const th = document.createElement("th");
+                th.innerText = periods[i];
+                row.appendChild(th);
+
+                for (let j = 0; j < days.length; j++) {
+                    const td = document.createElement("td");
+                    const subject = schedules[course][j][i] || "";
+                    td.innerHTML = addSubjectDetail(subject, i + j);
+                    row.appendChild(td);
+                }
+
+                tbody.appendChild(row);
+            }
+
+            table.appendChild(tbody);
+            document.getElementById("scheduleTable").innerHTML = "";
+            document.getElementById("scheduleTable").appendChild(table);
+        }
+
+        // 表描画
+        renderSchedule(userData.course);
+    </script>
+</body>
+</html>
