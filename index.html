@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログインページ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 400px; /* 幅を広めに固定 */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        input:focus {
+            border-color: #aaa;
+            outline: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .error-banner {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+    <script>
+        // ログイン情報（ユーザー名: パスワード）
+        const users = {
+            "taro": { password: "pass123", course: "sg", grade: "1年2組1番", name: "太郎" },
+            "hanako": { password: "hana456", course: "ag", grade: "2年3組5番", name: "花子" },
+            "admin": { password: "admin", course: "本科", grade: "3年1組10番", name: "管理者" }
+        };
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorBanner = document.getElementById('error-banner');
+
+            if (users[username] && users[username].password === password) {
+                const user = users[username];
+                localStorage.setItem("userData", JSON.stringify(user));
+                window.location.href = "home.html";
+            } else {
+                errorBanner.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>ログイン</h1>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">ユーザー名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="login-btn">ログイン</button>
+        </form>
+        <div id="error-banner" class="error-banner">ユーザーIDまたはパスワードが違います。</div>
+    </div>
+</body>
+</html>
